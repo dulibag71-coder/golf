@@ -5,7 +5,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "vite build && mkdir -p dist/mobile-app && cp -r mobile-app/* dist/mobile-app/ && rm -rf dist/mobile-app/.git",
+        "build": "vite build && npx -y shx mkdir -p dist/mobile-app && npx -y shx cp -r mobile-app/* dist/mobile-app/ && npx -y shx rm -rf dist/mobile-app/.git",
         "preview": "vite preview"
     },
     "dependencies": {
