@@ -29,7 +29,7 @@ class AirSwingApp {
         this.sync.subscribe('game_command', (data) => this.onGameCommand(data));
         this.sync.subscribe('camera_change', (data) => this.onCameraChange(data));
         this.sync.subscribe('env_update', (data) => this.onEnvUpdate(data));
-        this.sync.subscribe('caddy_update', (data) => this.audio.setVoice(data.voice));
+        this.sync.subscribe('caddy_update', (data) => this.onCaddyUpdate(data));
         this.sync.subscribe('god_mode', (data) => this.onGodMode(data));
         this.sync.subscribe('login_success', (data) => {
             this.ui.hideLogin(); // 로그인창 닫기
@@ -232,9 +232,15 @@ class AirSwingApp {
 
     onEnvUpdate(data) {
         if (data.type === 'wind') {
-            // 환경 패널 및 물리 엔진에 바람 적용 (TODO: PhysicsEngine에 setWind 구현 필요)
-            console.log(`Wind Updated: ${data.value}m/s`);
-            // TODO: Apply to physics
+            this.physics.setWind(data.value);
+            this.ui.showNotification(`바람 세기 변경: ${data.value}m/s`);
+        }
+    }
+
+    onCaddyUpdate(data) {
+        if (this.audio) {
+            this.audio.setVoice(data.voice);
+            this.ui.showNotification('캐디 목소리 변경됨');
         }
     }
 

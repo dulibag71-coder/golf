@@ -117,6 +117,27 @@ class MobileApp {
         this.bindClick('btn-mulligan', () => this.sendAction('REMOTE', { command: 'mulligan' }));
         this.bindClick('btn-god-mode', () => this.sendAction('GOD_MODE', {}));
 
+        // 추가: 리모컨 팔로우캠/탑뷰
+        this.bindClick('btn-cam-follow', () => this.sendAction('REMOTE', { command: 'camera', mode: 'follow' }));
+        this.bindClick('btn-cam-top', () => this.sendAction('REMOTE', { command: 'camera', mode: 'top' }));
+
+        // 추가: 환경 설정 리스너
+        const windSlider = document.getElementById('wind-slider');
+        if (windSlider) {
+            windSlider.addEventListener('input', (e) => {
+                const val = parseFloat(e.target.value);
+                document.getElementById('wind-val').innerText = `${val.toFixed(1)} m/s`;
+                this.sendAction('ENV_CONTROL', { type: 'wind', value: val });
+            });
+        }
+
+        const voiceSelect = document.getElementById('caddy-voice-select');
+        if (voiceSelect) {
+            voiceSelect.addEventListener('change', (e) => {
+                this.sendAction('CADDY_SETTING', { voice: e.target.value });
+            });
+        }
+
         // QR Login
         this.bindClick('qr-scan-btn', async () => {
             alert('📷 QR 스캔 중...');

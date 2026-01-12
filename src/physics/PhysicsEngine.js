@@ -17,6 +17,8 @@ export class PhysicsEngine {
             WATER: { friction: 5.0, restitution: 0.0, color: 0x3498db },
             OB: { type: 'OB' }
         };
+
+        this.wind = { x: 0, y: 0, z: 0 }; // 초기 바람 세기
     }
 
     async init() {
@@ -171,10 +173,16 @@ export class PhysicsEngine {
         this.ball.applyCentralForce(new Ammo.btVector3(sideSwing, liftForce, 0));
 
         // 2. 공기 저항 (Drag)
-        const dragX = vel.x() * -0.01;
-        const dragY = vel.y() * -0.01;
-        const dragZ = vel.z() * -0.01;
+        const dragX = vel.x() * -0.01 + this.wind.x * 0.05;
+        const dragY = vel.y() * -0.01 + this.wind.y * 0.05;
+        const dragZ = vel.z() * -0.01 + this.wind.z * 0.05;
         this.ball.applyCentralForce(new Ammo.btVector3(dragX, dragY, dragZ));
+    }
+
+    setWind(value) {
+        // 간소화를 위해 Z축(정면/맞바람) 위주로 적용
+        this.wind.z = value;
+        console.log(`Physics Wind Set: ${value} m/s`);
     }
 
     setBallProperties(props) {

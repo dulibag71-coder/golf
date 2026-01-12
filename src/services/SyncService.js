@@ -67,11 +67,6 @@ export class SyncService {
                 this.showToast('🗣️ 캐디 목소리 변경됨');
                 break;
 
-            case 'CADDY_SETTING':
-                this.notifySubscribers('caddy_update', { voice: action.payload.voice });
-                this.showToast('🗣️ 캐디 목소리 변경됨');
-                break;
-
             case 'GOD_MODE':
                 this.notifySubscribers('god_mode', { enabled: true });
                 this.showToast('⚡ GOD MODE ACTIVATED! (Gravity: Low, Power: MAX)');
