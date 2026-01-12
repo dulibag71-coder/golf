@@ -84,6 +84,38 @@ class AirSwingApp {
         }
     }
 
+    onShot(data) {
+        if (this.state !== 'ready' && this.state !== 'address') return;
+
+        console.log('샷 감지!', data);
+        this.shotStartTime = performance.now();
+        this.setGameState('flight');
+        this.physics.setInitialShot(data.velocity, data.spin);
+        this.audio.playEffect('hit');
+        this.lastShotVelocity = data.velocity;
+    }
+
+    handleShotComplete(distance) {
+        this.setGameState('ready'); // 다시 대기 상태로
+
+        // 모바일 앱으로 결과 전송
+        const shotData = {
+            distance: distance,
+            ballSpeed: Math.sqrt(this.lastShotVelocity.x ** 2 + this.lastShotVelocity.y ** 2 + this.lastShotVelocity.z ** 2),
+            launchAngle: Math.atan2(this.lastShotVelocity.y, this.lastShotVelocity.z) * (180 / Math.PI),
+            rewardCoins: Math.floor(distance * 10), // 거리당 10코인 보상
+            timestamp: Date.now()
+        };
+
+        console.log('샷 완료! 데이터 동기화 중...', shotData);
+        this.sync.updateGameState({
+            lastShot: shotData,
+            totalRounds: 1 // 임시
+        });
+
+        this.ui.showNotification(`샷 완료! 비거리: ${distance.toFixed(1)}m (+${shotData.rewardCoins} G)`);
+    }
+
     onInitComplete() {
         if (this.state !== 'loading') return;
         this.ui.hideLoader();
@@ -208,6 +240,15 @@ class AirSwingApp {
                         { x: origin.x(), y: origin.y(), z: origin.z() },
                         { x: rotation.x(), y: rotation.y(), z: rotation.z(), w: rotation.w() }
                     );
+
+                    // 1.1 샷 종료 체크 (공이 정지했는지)
+                    const vel = this.physics.ball.getLinearVelocity();
+                    const speed = Math.sqrt(vel.x() ** 2 + vel.y() ** 2 + vel.z() ** 2);
+
+                    if (speed < 0.1 && time > (this.shotStartTime + 1000)) {
+                        const finalDistance = Math.abs(origin.z()); // 출발점이 0,0,0 가정
+                        this.handleShotComplete(finalDistance);
+                    }
                 }
             }
 
