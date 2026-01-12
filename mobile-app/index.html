@@ -274,12 +274,21 @@
             <div class="nav-item" onclick="showPage('page-shop')">🏪 스토어</div>
         </div>
 
-        <div class="card-container">
-            <div class="round-card">
-                <span class="tag">21.03.19 배틀존</span>
-                <div class="title">골프존카운티 순천 🅿️</div>
-                <div class="score">73 <span>타 (+1)</span></div>
+        <div class="card-container" id="home-round-container">
+            <!-- Latest Round Card (Dynamic) -->
+            <div id="home-round-card" class="round-card" style="display:none;">
+                <span id="home-round-date" class="tag">--.--.--</span>
+                <div id="home-round-title" class="title">--</div>
+                <div class="score"><span id="home-round-score">--</span> <span>타</span></div>
             </div>
+
+            <!-- Empty State for Home -->
+            <div id="home-empty-state" class="round-card"
+                style="background:linear-gradient(135deg, #eee, #ddd); color:#999; text-align:center;">
+                <div style="font-size:30px; margin-bottom:10px;">🏌️‍♂️</div>
+                아직 라운드 기록이 없습니다.<br>첫 샷을 날려보세요!
+            </div>
+
             <div class="btn-group">
                 <button onclick="showPage('page-stats')">스코어카드</button>
                 <button onclick="showPage('page-nasmo')">나스모</button>

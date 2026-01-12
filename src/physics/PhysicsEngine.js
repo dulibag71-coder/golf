@@ -4,7 +4,8 @@ export class PhysicsEngine {
         this.app = app;
         this.world = null;
         this.terrains = []; // { mesh, type, bounds }
-        this.spin = new Ammo.btVector3(0, 0, 0); // rps (Round Per Second)
+        this.Ammo = null; // 초기화 후 할당됨
+        this.spin = null; // setupPhysicsWorld에서 초기화
         this.MAGNUS_COEFF = 0.0001; // 마그누스 효과 계수
 
         // 지형 상수 및 물리 속성
@@ -19,43 +20,30 @@ export class PhysicsEngine {
     }
 
     async init() {
-        return new Promise((resolve) => {
-            let attempts = 0;
-            const checkAmmo = () => {
-                attempts++;
-                if (typeof Ammo === 'function') {
-                    try {
-                        Ammo().then((AmmoLib) => {
-                            window.Ammo = AmmoLib;
-                            this.setupPhysicsWorld();
-                            console.log('Ammo.js 월드 생성 완료');
-                            resolve();
-                        }).catch(e => {
-                            console.error('Ammo Initialization Promise Error:', e);
-                            resolve(); // Continue anyway to hide loader
-                        });
-                    } catch (e) {
-                        console.error('Ammo Initialization Call Error:', e);
-                        resolve();
-                    }
-                } else if (typeof Ammo !== 'undefined' && Ammo.btVector3) {
-                    // Already loaded globally (common for some CDNs)
-                    this.setupPhysicsWorld();
-                    resolve();
-                } else if (attempts > 10) {
-                    console.error('Ammo.js failed to load after 5 seconds');
-                    resolve(); // Failsafe
-                } else {
-                    console.warn('Ammo.js 로딩 대기 중...');
-                    setTimeout(checkAmmo, 500);
-                }
-            };
-            checkAmmo();
-        });
+        console.log('Ammo.js 로딩 시도...');
+        try {
+            if (typeof Ammo === 'function') {
+                const AmmoLib = await Ammo();
+                this.Ammo = AmmoLib;
+                window.Ammo = AmmoLib; // 전역 호환성 유지
+                this.setupPhysicsWorld();
+                console.log('Ammo.js 초기화 완료');
+            } else if (typeof Ammo !== 'undefined' && Ammo.btVector3) {
+                this.Ammo = Ammo;
+                this.setupPhysicsWorld();
+                console.log('Ammo.js 이미 로드됨');
+            } else {
+                throw new Error('Ammo.js가 정의되지 않았습니다. index.html의 스크립트 로드를 확인하세요.');
+            }
+        } catch (e) {
+            console.error('Ammo Initialization Error:', e);
+            throw e; // main.js에서 catch하도록 던짐
+        }
     }
 
     setupPhysicsWorld() {
-        if (!Ammo) return;
+        if (!this.Ammo) return;
+        const Ammo = this.Ammo;
 
         const collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
         const dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
@@ -67,10 +55,13 @@ export class PhysicsEngine {
         );
         this.world.setGravity(new Ammo.btVector3(0, -9.81, 0));
 
+        this.spin = new Ammo.btVector3(0, 0, 0);
+
         this.createGround();
     }
 
     createGround() {
+        const Ammo = this.Ammo;
         // 무한 평면 지면
         const groundShape = new Ammo.btStaticPlaneShape(new Ammo.btVector3(0, 1, 0), 0);
         const groundTransform = new Ammo.btTransform();
@@ -89,6 +80,7 @@ export class PhysicsEngine {
     }
 
     createBall() {
+        const Ammo = this.Ammo;
         const radius = 0.042;
         const mass = 0.045; // 45g
 
@@ -117,7 +109,8 @@ export class PhysicsEngine {
     }
 
     checkBallStatus() {
-        if (!this.ball || !Ammo) return 'FAIRWAY';
+        if (!this.ball || !this.Ammo) return 'FAIRWAY';
+        const Ammo = this.Ammo;
 
         const transform = new Ammo.btTransform();
         this.ball.getMotionState().getWorldTransform(transform);
@@ -164,7 +157,8 @@ export class PhysicsEngine {
     }
 
     applyAerodynamics(dt) {
-        if (!this.ball || !Ammo) return;
+        if (!this.ball || !this.Ammo) return;
+        const Ammo = this.Ammo;
 
         // 1. 마그누스 효과 (Spin에 의한 양력/커브)
         const vel = this.ball.getLinearVelocity();
@@ -184,8 +178,10 @@ export class PhysicsEngine {
     }
 
     setInitialShot(velocity, spin) {
-        if (!this.ball) return;
+        if (!this.ball || !this.Ammo) return;
+        const Ammo = this.Ammo;
         this.ball.setLinearVelocity(new Ammo.btVector3(velocity.x, velocity.y, velocity.z));
+        this.ball.setAngularVelocity(new Ammo.btVector3(spin.x, spin.y, spin.z)); // 스핀 반영
         this.spin = new Ammo.btVector3(spin.x, spin.y, spin.z);
         this.ball.activate();
     }

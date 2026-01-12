@@ -39,6 +39,23 @@ class MobileApp {
         if (levelEl) levelEl.innerText = this.db.level;
         if (xpEl) xpEl.innerText = this.db.xp;
 
+        // Update Home Last Round
+        const homeRoundCard = document.getElementById('home-round-card');
+        const homeEmpty = document.getElementById('home-empty-state');
+        if (this.db.rounds.length > 0) {
+            const lastRound = this.db.rounds[0];
+            if (homeRoundCard) {
+                homeRoundCard.style.display = 'block';
+                document.getElementById('home-round-date').innerText = lastRound.date;
+                document.getElementById('home-round-title').innerText = lastRound.course;
+                document.getElementById('home-round-score').innerText = lastRound.score.split(' ')[0];
+            }
+            if (homeEmpty) homeEmpty.style.display = 'none';
+        } else {
+            if (homeRoundCard) homeRoundCard.style.display = 'none';
+            if (homeEmpty) homeEmpty.style.display = 'block';
+        }
+
         // Update Stats
         const statsEmpty = document.getElementById('stats-empty');
         const statsContent = document.getElementById('stats-content');

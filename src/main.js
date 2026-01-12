@@ -50,41 +50,37 @@ class AirSwingApp {
     }
 
     async init() {
-        console.log('AirSwing Web 초기화 중...');
-        this.ui.updateProgress(10, '데이터 로딩 중...');
+        console.log('GolfUniverse 초기화 시작...');
+        if (typeof window === 'undefined') return;
+
+        this.ui.updateProgress(10, '라이브러리 로딩 중...');
 
         try {
-            // Failsafe Timeout (5 seconds)
-            const timeout = setTimeout(() => {
-                if (this.state === 'loading') {
-                    console.warn('Initialization timeout - Force starting...');
-                    this.onInitComplete();
-                }
-            }, 5000);
+            // 1. Ammo.js 비동기 로딩 및 물리 엔진 초기화
+            this.ui.updateProgress(30, '물리 엔진 시스템(Ammo.js) 준비 중...');
+            await this.physics.init(); // 내부에서 await Ammo() 수행
 
-            // 1. 물리 엔진 초기화
-            this.ui.updateProgress(30, '물리 엔진 초기화 중...');
-            await this.physics.init();
+            // 2. 렌더링 엔진 설정
+            this.ui.updateProgress(50, '그래픽 엔진(Three.js) 월드 생성 중...');
+            // SceneManager는 이미 생성자에서 renderer를 준비함
 
-            // 2. 렌더링 엔진 초기화 대기 (SceneManager는 생성자에서 이미 초기화됨)
-            this.ui.updateProgress(60, '월드 렌더링 생성 중...');
-
-            // 3. 비전 엔진 초기화
-            this.ui.updateProgress(80, '스윙 감지 모듈 준비 중...');
+            // 3. 비전 엔진 초기화 (MediaPipe Pose)
+            this.ui.updateProgress(70, 'AI 스윙 감지 모듈 초기화 중...');
             await this.vision.init(() => {
-                if (this.state === 'address' || this.state === 'loading') {
-                    console.log('Vision Ready -> Setting Address State');
+                if (this.state === 'loading') {
+                    console.log('Vision Module Ready');
                     this.setGameState('ready');
                 }
             });
 
-            this.ui.updateProgress(100, '모든 준비가 완료되었습니다!');
-
-            clearTimeout(timeout);
+            this.ui.updateProgress(100, '모든 시스템 준비 완료!');
             this.onInitComplete();
-        } catch (error) {
-            console.error('초기화 실패:', error);
-            this.onInitComplete(); // 에러 발생 시에도 화면은 띄움
+
+        } catch (e) {
+            console.error('System Initialization Failed:', e);
+            this.ui.updateProgress(100, '일부 모듈 로드 실패 (Failsafe 실행)');
+            // 에러가 발생하더라도 최소한의 렌더링은 가능하도록 처리
+            this.onInitComplete();
         }
     }
 
