@@ -5,7 +5,8 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { Sky } from 'three/examples/jsm/objects/Sky.js';
 
 export class SceneManager {
-    constructor(canvasId) {
+    constructor(app, canvasId) {
+        this.app = app;
         this.canvas = document.getElementById(canvasId);
         this.renderer = new THREE.WebGLRenderer({
             canvas: this.canvas,
@@ -161,8 +162,8 @@ export class SceneManager {
         }
 
         // 물리 엔진 연동
-        if (window.app && window.app.physics) {
-            window.app.physics.addTerrain({ xMin, xMax, zMin, zMax }, type);
+        if (this.app && this.app.physics) {
+            this.app.physics.addTerrain({ xMin, xMax, zMin, zMax }, type);
         }
     }
 
@@ -258,7 +259,7 @@ export class SceneManager {
             this.ballMesh.quaternion.set(quat.x, quat.y, quat.z, quat.w);
 
             // Update Trail
-            if (window.app && (window.app.state === 'flight' || window.app.state === 'putting')) {
+            if (this.app && (this.app.state === 'flight' || this.app.state === 'putting')) {
                 this.trailPoints.push(new THREE.Vector3(pos.x, pos.y, pos.z));
                 if (this.trailPoints.length > 200) this.trailPoints.shift();
                 this.trailGeometry.setFromPoints(this.trailPoints);

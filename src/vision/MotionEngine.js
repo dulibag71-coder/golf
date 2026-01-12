@@ -1,5 +1,6 @@
 export class MotionEngine {
-    constructor(videoElement, canvasElement) {
+    constructor(app, videoElement, canvasElement) {
+        this.app = app;
         this.video = videoElement;
         this.canvas = canvasElement;
         this.ctx = this.canvas.getContext('2d');

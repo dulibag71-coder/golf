@@ -19,11 +19,13 @@ export class UIManager {
 
         this.shotResult = document.getElementById('shot-result');
         this.loader = document.getElementById('loader');
-        this.progress = document.getElementById('progress-bar');
+        this.progress = document.getElementById('load-bar'); // Match index.html
 
         // Rebrand Loader
-        const loaderTitle = this.loader.querySelector('h1');
-        if (loaderTitle) loaderTitle.innerText = 'GOLF UNIVERSE';
+        if (this.loader) {
+            const logoEl = this.loader.querySelector('.logo');
+            if (logoEl) logoEl.innerText = 'GOLF UNIVERSE';
+        }
 
         this.readyStatus = document.getElementById('ready-status');
         this.addressGuide = document.getElementById('address-guide');
@@ -54,7 +56,7 @@ export class UIManager {
     }
 
     updateProgress(percent) {
-        if (this.loadBar) this.loadBar.style.width = `${percent}%`;
+        if (this.progress) this.progress.style.width = `${percent}%`;
     }
 
     hideLoader() {

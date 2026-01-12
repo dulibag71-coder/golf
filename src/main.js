@@ -1,3 +1,4 @@
+import { SceneManager } from './graphics/SceneManager.js';
 import { UIManager } from './ui/UIManager.js';
 import { EnvironmentPanel } from './ui/EnvironmentPanel.js';
 import { ClubSelector } from './ui/ClubSelector.js';
@@ -13,9 +14,10 @@ class AirSwingApp {
         this.env = new EnvironmentPanel(this.ui);
         this.clubs = new ClubSelector(this.ui);
         this.minimap = new Minimap('minimap');
-        this.scene = new SceneManager('game-canvas');
-        this.physics = new PhysicsEngine();
+        this.scene = new SceneManager(this, 'game-canvas');
+        this.physics = new PhysicsEngine(this);
         this.vision = new MotionEngine(
+            this,
             document.getElementById('input-video'),
             document.getElementById('pose-canvas')
         );

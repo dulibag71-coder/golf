@@ -1,6 +1,7 @@
 // ammo.js는 비동기 로딩이 필요함
 export class PhysicsEngine {
-    constructor() {
+    constructor(app) {
+        this.app = app;
         this.world = null;
         this.terrains = []; // { mesh, type, bounds }
         this.spin = new Ammo.btVector3(0, 0, 0); // rps (Round Per Second)
