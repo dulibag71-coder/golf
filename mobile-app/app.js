@@ -23,6 +23,14 @@ class MobileApp {
         return JSON.parse(raw);
     }
 
+    getBaseUrl() {
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            return ''; // Use relative path for local proxy
+        }
+        // Production Server URL (from User's Vercel deployment)
+        return 'https://golf-nw5d.vercel.app';
+    }
+
     saveDB() {
         localStorage.setItem(DB_KEY, JSON.stringify(this.db));
         this.syncUI();
@@ -166,7 +174,7 @@ class MobileApp {
 
                 if (!token) {
                     // Auto-login for demo purposes if not logged in
-                    const res = await fetch('/api/auth/login', {
+                    const res = await fetch(`${this.getBaseUrl()}/api/auth/login`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ email: 'user@example.com', password: 'password123' })
@@ -178,7 +186,7 @@ class MobileApp {
                 }
 
                 // 2. Connect Session
-                const res = await fetch('/api/auth/session/connect', {
+                const res = await fetch(`${this.getBaseUrl()}/api/auth/session/connect`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -217,7 +225,7 @@ class MobileApp {
 
                 // 서버 연동
                 if (this.token || localStorage.getItem('auth_token')) {
-                    await fetch('/api/user/equip', {
+                    await fetch(`${this.getBaseUrl()}/api/user/equip`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -260,7 +268,7 @@ class MobileApp {
         const token = this.token || localStorage.getItem('auth_token');
         if (token && type !== 'QR_LOGIN') {
             try {
-                await fetch('/api/remote/command', {
+                await fetch(`${this.getBaseUrl()}/api/remote/command`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -286,7 +294,7 @@ class MobileApp {
             const token = this.token || localStorage.getItem('auth_token');
             if (token) {
                 try {
-                    const res = await fetch('/api/user/state', {
+                    const res = await fetch(`${this.getBaseUrl()}/api/user/state`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
                     const data = await res.json();

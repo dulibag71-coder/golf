@@ -1,11 +1,14 @@
 import sqlite3 from 'sqlite3';
 import bcrypt from 'bcryptjs';
 
-const db = new sqlite3.Database('./airswing.db', (err) => {
+const isVercel = process.env.VERCEL === '1';
+const dbPath = isVercel ? ':memory:' : './airswing.db';
+
+const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.error('데이터베이스 연결 실패:', err.message);
     } else {
-        console.log('SQLite 데이터베이스 연결 성공');
+        console.log(`SQLite 데이터베이스 연결 성공 (${isVercel ? 'Memory' : 'File'})`);
         initializeTables();
     }
 });

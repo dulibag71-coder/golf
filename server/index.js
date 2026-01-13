@@ -172,6 +172,12 @@ app.get('/api/user/state', authenticateToken, (req, res) => {
     res.json({ state });
 });
 
-app.listen(PORT, () => {
-    console.log(`서버 실행 중: http://localhost:${PORT}`);
-});
+const isVercel = process.env.VERCEL === '1';
+
+if (!isVercel) {
+    app.listen(PORT, () => {
+        console.log(`서버 실행 중: http://localhost:${PORT}`);
+    });
+}
+
+export default app;
